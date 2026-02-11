@@ -1,8 +1,9 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from tortoise.contrib.fastapi import register_tortoise
+from tortoise import Tortoise
 
 from app.models import Event, Tournament
 from app.pagination import (
@@ -20,7 +21,17 @@ from app.schemas import (
 )
 from app.settings import TORTOISE_ORM
 
-app = FastAPI(title="FastTortoise")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await Tortoise.init(config=TORTOISE_ORM)
+    try:
+        yield
+    finally:
+        await Tortoise.close_connections()
+
+
+app = FastAPI(title="FastTortoise", lifespan=lifespan)
 logger = logging.getLogger(__name__)
 
 EVENTS_RF_CONFIG = ListEndpointConfig(
@@ -77,11 +88,3 @@ async def get_events(common_list_dependencies: CommonListDependencies):
 @app.get("/events_rf", response_model=EVENTS_RF_CONFIG.page_schema)
 async def get_events_rf(common_list_dependencies: CommonListDependencies):
     return await paginate_from_config(EVENTS_RF_CONFIG, common_list_dependencies)
-
-
-register_tortoise(
-    app,
-    config=TORTOISE_ORM,
-    generate_schemas=False,
-    add_exception_handlers=True,
-)

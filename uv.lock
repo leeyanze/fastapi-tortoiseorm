@@ -271,6 +271,27 @@ wheels = [
 ]
 
 [[package]]
+name = "fastapi-tortoiseorm"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "aerich" },
+    { name = "fastapi", extra = ["standard"] },
+    { name = "requests" },
+    { name = "tomlkit" },
+    { name = "tortoise-orm" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aerich", specifier = ">=0.9.2" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.128.7" },
+    { name = "requests", specifier = ">=2.32.5" },
+    { name = "tomlkit", specifier = ">=0.14.0" },
+    { name = "tortoise-orm", specifier = ">=0.25.4" },
+]
+
+[[package]]
 name = "fastar"
 version = "0.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -363,27 +384,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/a4/b9/9a8c3fd59958c1c8027bc075af11722cdc62c4968bb277e841d131232289/fastar-0.8.0-pp311-pypy311_pp73-musllinux_1_2_armv7l.whl", hash = "sha256:382bfe82c026086487cb17fee12f4c1e2b4e67ce230f2e04487d3e7ddfd69031", size = 1042911, upload-time = "2025-11-26T02:35:21.857Z" },
     { url = "https://files.pythonhosted.org/packages/e2/2f/c3f30963b47022134b8a231c12845f4d7cfba520f59bbc1a82468aea77c7/fastar-0.8.0-pp311-pypy311_pp73-musllinux_1_2_i686.whl", hash = "sha256:908d2b9a1ff3d549cc304b32f95706a536da8f0bcb0bc0f9e4c1cce39b80e218", size = 1047464, upload-time = "2025-11-26T02:35:39.376Z" },
     { url = "https://files.pythonhosted.org/packages/9e/8a/218ab6d9a2bab3b07718e6cd8405529600edc1e9c266320e8524c8f63251/fastar-0.8.0-pp311-pypy311_pp73-musllinux_1_2_x86_64.whl", hash = "sha256:1aa7dbde2d2d73eb5b6203d0f74875cb66350f0f1b4325b4839fc8fbbf5d074e", size = 997309, upload-time = "2025-11-26T02:35:57.722Z" },
-]
-
-[[package]]
-name = "fasttortoise"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "aerich" },
-    { name = "fastapi", extra = ["standard"] },
-    { name = "requests" },
-    { name = "tomlkit" },
-    { name = "tortoise-orm" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aerich", specifier = ">=0.9.2" },
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.128.7" },
-    { name = "requests", specifier = ">=2.32.5" },
-    { name = "tomlkit", specifier = ">=0.14.0" },
-    { name = "tortoise-orm", specifier = ">=0.25.4" },
 ]
 
 [[package]]
