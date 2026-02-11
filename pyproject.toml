@@ -1,0 +1,12 @@
+[project]
+name = "fastapi-tortoiseorm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["aerich>=0.9.2", "fastapi[standard]>=0.128.7", "requests>=2.32.5", "tomlkit>=0.14.0", "tortoise-orm>=0.25.4"]
+
+[tool.aerich]
+tortoise_orm = "app.settings.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./."
