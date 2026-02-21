@@ -54,6 +54,9 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 @app.get("/tournaments", response_model=TournamentPage_PYDANTIC)
 async def get_tournaments(request: Request, pagination: PaginationDep):
+    '''
+    Example endpoint demonstrating the use of filter_sort_search_queryset.
+    '''
     filterset_fields = ["name", "events__name"]
     search_fields = ["name", "events__name"]
     ordering_fields = ["id", "name", "created"]
