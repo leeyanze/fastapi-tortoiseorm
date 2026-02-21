@@ -1,13 +1,16 @@
 import logging
 from contextlib import asynccontextmanager
+from typing import Annotated
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from tortoise import Tortoise
 
+from app.filter_sort_search import filter_sort_search_queryset
 from app.models import Event, Tournament
 from app.pagination import (
-    CommonListDependencies,
+    PaginationParams,
+    get_pagination_params,
     ListEndpointConfig,
     paginate_from_config,
     paginate_queryset_with_mapper,
@@ -34,11 +37,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="FastTortoise", lifespan=lifespan)
 logger = logging.getLogger(__name__)
 
+PaginationDep = Annotated[PaginationParams, Depends(get_pagination_params)]
+
 EVENTS_RF_CONFIG = ListEndpointConfig(
     queryset_factory=lambda: Event.all().prefetch_related("tournament", "participants"),
     item_schema=EventList_PYDANTIC,
     page_schema=EventPage_PYDANTIC,
 )
+
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
@@ -47,10 +53,21 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 
 @app.get("/tournaments", response_model=TournamentPage_PYDANTIC)
-async def get_tournaments(common_list_dependencies: CommonListDependencies):
-    return await paginate_queryset_with_mapper(
+async def get_tournaments(request: Request, pagination: PaginationDep):
+    filterset_fields = ["name", "events__name"]
+    search_fields = ["name", "events__name"]
+    ordering_fields = ["id", "name", "created"]
+
+    queryset = filter_sort_search_queryset(
         Tournament.all().prefetch_related("events"),
-        **common_list_dependencies.model_dump(),
+        request,
+        filterset_fields=filterset_fields,
+        search_fields=search_fields,
+        ordering_fields=ordering_fields,
+    )
+    return await paginate_queryset_with_mapper(
+        queryset,
+        **pagination.model_dump(),
         mapper=lambda tournament: TournamentList_PYDANTIC.model_validate(
             tournament, from_attributes=True
         ),
@@ -64,10 +81,10 @@ async def create_tournament(payload: TournamentIn_PYDANTIC):
 
 
 @app.get("/tournaments_gt", response_model=TournamentPage_PYDANTIC)
-async def get_tournaments_gt(common_list_dependencies: CommonListDependencies):
+async def get_tournaments_gt(pagination: PaginationDep):
     return await paginate_queryset_with_mapper(
         Tournament.objects.with_prize_gt().prefetch_related("events"),
-        **common_list_dependencies.model_dump(),
+        **pagination.model_dump(),
         mapper=lambda tournament: TournamentList_PYDANTIC.model_validate(
             tournament, from_attributes=True
         ),
@@ -75,10 +92,10 @@ async def get_tournaments_gt(common_list_dependencies: CommonListDependencies):
 
 
 @app.get("/events", response_model=EventPage_PYDANTIC)
-async def get_events(common_list_dependencies: CommonListDependencies):
+async def get_events(pagination: PaginationDep):
     return await paginate_queryset_with_mapper(
         Event.all().prefetch_related("tournament", "participants"),
-        **common_list_dependencies.model_dump(),
+        **pagination.model_dump(),
         mapper=lambda event: EventList_PYDANTIC.model_validate(
             event, from_attributes=True
         ),
@@ -86,5 +103,5 @@ async def get_events(common_list_dependencies: CommonListDependencies):
 
 
 @app.get("/events_rf", response_model=EVENTS_RF_CONFIG.page_schema)
-async def get_events_rf(common_list_dependencies: CommonListDependencies):
-    return await paginate_from_config(EVENTS_RF_CONFIG, common_list_dependencies)
+async def get_events_rf(pagination: PaginationDep):
+    return await paginate_from_config(EVENTS_RF_CONFIG, pagination)

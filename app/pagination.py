@@ -17,9 +17,6 @@ def get_pagination_params(
     return PaginationParams(limit=limit, offset=offset)
 
 
-CommonListDependencies = Annotated[PaginationParams, Depends(get_pagination_params)]
-
-
 def make_page_model(item_model: type[BaseModel], name: str) -> type[BaseModel]:
     return create_model(
         name,

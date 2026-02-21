@@ -12,11 +12,23 @@ def print_json(data) -> None:
     print(json.dumps(data, indent=2, sort_keys=True, default=str))
 
 
-def get_tournaments() -> None:
+def get_tournaments(search: str | None = None) -> None:
     url = "http://127.0.0.1:8000/tournaments"
-    response = requests.get(url, timeout=10)
+    params = {"limit": 20, "offset": 0}
+    if search:
+        params["search"] = search
+
+    response = requests.get(url, params=params, timeout=10)
     print(response.status_code)
-    print_json(response.json())
+    payload = response.json()
+    print_json(payload)
+    print(
+        {
+            "limit": payload.get("limit"),
+            "offset": payload.get("offset"),
+            "search": search,
+        }
+    )
     response.raise_for_status()
 
 
@@ -87,7 +99,13 @@ def main() -> None:
         asyncio.run(seeddb())
         return
     if command == "list":
-        get_tournaments()
+        search = sys.argv[2] if len(sys.argv) > 2 else None
+        get_tournaments(search)
+        return
+    if command == "search":
+        if len(sys.argv) < 3:
+            raise SystemExit("Usage: python run.py search <search>")
+        get_tournaments(sys.argv[2])
         return
     if command == "events":
         get_events()
@@ -98,7 +116,9 @@ def main() -> None:
     if command == "tournaments-gt":
         get_tournaments_gt()
         return
-    raise SystemExit("Usage: python run.py [seed|list|events|events-rf|tournaments-gt]")
+    raise SystemExit(
+        "Usage: python run.py [seed|list [search]|search <search>|events|events-rf|tournaments-gt]"
+    )
 
 
 if __name__ == "__main__":
