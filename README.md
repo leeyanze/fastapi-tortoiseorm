@@ -2,6 +2,14 @@
 
 This project is a step toward a configuration-based list view inspired by Django REST Framework, with built-in pagination, search, filtering, and ordering capabilities.
 
+## Main reference
+
+If you want to understand the full flow, start with:
+
+`app/main.py` -> `async def get_tournaments(request: Request, pagination: PaginationDep):`
+
+This endpoint is the primary reference for how pagination plus filter/sort/search are wired together.
+
 ## Run locally
 
 ```bash
